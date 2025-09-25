@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: provider-integration-service
+  profiles:
+    active: dev
+
+  datasource:
+    url: jdbc:h2:mem:plansdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+  cache:
+    type: caffeine
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+provider:
+  base-url: https://provider.code-challenge.feverup.com
+  request-timeout: 5s
+
+sync:
+  rate:
+    ms: 300000
+
+resilience4j:
+  retry:
+    instances:
+      provider:
+        max-attempts: 3
+        wait-duration: 500ms
+  circuitbreaker:
+    instances:
+      provider:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: provider-integration
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+server:
+  port: 8080
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.fever.alf: DEBUG
+    org.springframework.web: INFO
+    org.hibernate: INFO
+
+xml:
+  date-format: ISO_DATE_TIME
+  tags:
+    plan: plan
+    zone: zone
+    id: id
+    name: name
+    price: price
+    start: start_date
+    end: end_date
+    sell-mode: sell_mode
